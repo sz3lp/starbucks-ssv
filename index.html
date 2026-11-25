@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#006241">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="The Ultimate Starbucks Shift Supervisor (SSV) Pocket Guide & Operational Command Tool">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23006241'/><circle cx='50' cy='50' r='38' fill='none' stroke='%23ffffff' stroke-width='3'/><path d='M50 20 L58 38 L78 38 L62 50 L68 70 L50 58 L32 70 L38 50 L22 38 L42 38 Z' fill='%23ffffff'/></svg>">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>GreenApron SSV | Shift Supervisor Companion</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="brand">
+          <div class="brand-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="siren-star">
+              <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
+            </svg>
+          </div>
+          <div>
+            <h1>GreenApron <span class="badge-ssv">SSV LEAD</span></h1>
+            <p class="subtitle" id="live-time-str">Loading Shift Clock...</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="quick-hotline-btn" class="icon-btn" title="Emergency Contacts" aria-label="Emergency Hotlines">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+          </button>
+          <button id="sound-toggle-btn" class="icon-btn active" title="Sound alerts enabled" aria-label="Toggle Sound">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" id="sound-icon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Content Views -->
+    <main id="main-content">
+      
+      <!-- VIEW 1: ROUTINES & CHECKLISTS -->
+      <section id="view-routines" class="app-view active">
+        <div class="view-header">
+          <h2>Shift Checklists</h2>
+          <p class="section-desc">Track tasks for Open, Mid, Close, and Clean Play. Progress persists automatically.</p>
+        </div>
+
+        <div class="pill-tabs">
+          <button class="pill-tab active" data-routine="open">Open</button>
+          <button class="pill-tab" data-routine="peak">Peak</button>
+          <button class="pill-tab" data-routine="mid">Mid</button>
+          <button class="pill-tab" data-routine="close">Close</button>
+          <button class="pill-tab" data-routine="cleanPlay">Clean Play</button>
+        </div>
+
+        <div class="card routine-card">
+          <div class="routine-meta">
+            <div>
+              <h3 id="routine-title">Opening Routine</h3>
+              <span class="timing-badge" id="routine-timing">30-45m pre-open</span>
+            </div>
+            <button id="reset-checklist-btn" class="text-btn danger">Reset</button>
+          </div>
+          <p class="routine-desc" id="routine-desc">Set the team up for success.</p>
+          
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="routine-progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-label" id="routine-progress-label">0 of 12 completed (0%)</span>
+          </div>
+
+          <div class="task-list" id="task-list-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: PLAYCALLER & DEPLOYMENT -->
+      <section id="view-playcaller" class="app-view">
+        <div class="view-header">
+          <h2>Playcaller & Deployment</h2>
+          <p class="section-desc">"Aces in their Places" deployment based on partner count and station flow.</p>
+        </div>
+
+        <div class="card">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="store-format-select">Store Format</label>
+              <select id="store-format-select" class="styled-select">
+                <option value="dtStore">Drive-Thru + Café</option>
+                <option value="cafeStore">Café Only</option>
+              </select>
+            </div>
+            <div class="form-group flex-1">
+              <label for="partner-count-select">Partner Count</label>
+              <select id="partner-count-select" class="styled-select">
+                <option value="2">2 Partners (Minimum)</option>
+                <option value="3">3 Partners (Early/Late)</option>
+                <option value="4" selected>4 Partners (Shoulder)</option>
+                <option value="5">5 Partners (Peak)</option>
+                <option value="6">6 Partners (High Peak)</option>
+                <option value="7">7-8 Partners (Rush)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="deployment-box" id="deployment-output">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Live Break Tracker -->
+        <div class="card">
+          <div class="card-title-row">
+            <h3>Partner Break Timers</h3>
+            <span class="pill-badge">Live Alarms</span>
+          </div>
+          <p class="card-helper">Never miss running a 10-minute rest or 30-minute meal break on time.</p>
+          
+          <div class="add-break-form">
+            <input type="text" id="break-partner-name" placeholder="Partner Name (e.g., Alex)" class="styled-input">
+            <div class="btn-group">
+              <button class="btn btn-outline" id="start-10-btn">+ 10 Min Rest</button>
+              <button class="btn btn-outline" id="start-30-btn">+ 30 Min Meal</button>
+            </div>
+          </div>
+
+          <div id="active-breaks-container" class="breaks-list">
+            <div class="empty-state">No partner breaks currently active.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: DAY-DOT & EXPIRATION CALCULATOR -->
+      <section id="view-daydot" class="app-view">
+        <div class="view-header">
+          <h2>Day-Dot Expiration Tool</h2>
+          <p class="section-desc">Instant Starbucks shelf-life lookup and automated day-dot sticker generator.</p>
+        </div>
+
+        <!-- Interactive Sticker Generator -->
+        <div class="card daydot-generator-card">
+          <h3>Day-Dot Sticker Generator</h3>
+          
+          <div class="form-group">
+            <label for="sticker-item-select">Select Item to Label</label>
+            <select id="sticker-item-select" class="styled-select">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="prep-time-input">Prep/Open Time</label>
+              <input type="time" id="prep-time-input" class="styled-input">
+            </div>
+            <div class="form-group flex-1">
+              <label for="partner-initials">Partner Initials</label>
+              <input type="text" id="partner-initials" class="styled-input" maxlength="4" placeholder="LP" value="LP">
+            </div>
+          </div>
+
+          <!-- Digital Day-Dot Visual Sticker -->
+          <div class="daydot-sticker-preview" id="sticker-preview">
+            <div class="sticker-color-bar" id="sticker-color-bar"></div>
+            <div class="sticker-body">
+              <div class="sticker-header">
+                <span class="sticker-day-name" id="preview-day">WEDNESDAY</span>
+                <span class="sticker-type-pill" id="preview-category">SAUCE</span>
+              </div>
+              <div class="sticker-item-name" id="preview-item">Mocha Sauce</div>
+              <div class="sticker-time-display">
+                <span class="time-label">EXPIRES:</span>
+                <span class="time-val" id="preview-time">11:59 PM (Close)</span>
+              </div>
+              <div class="sticker-footer">
+                <span id="preview-date">NOV 26, 2026</span>
+                <span class="partner-mark" id="preview-initials">PREP: LP</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sticker-rule-tip" id="sticker-rule-tip">
+            Standard: 24 Hours ambient. Discard any remaining sauce after 24 hrs.
+          </div>
+        </div>
+
+        <!-- Searchable Master Shelf-Life Directory -->
+        <div class="card">
+          <div class="card-title-row">
+            <h3>Shelf-Life Directory</h3>
+            <span class="badge-count" id="shelf-count-badge">21 items</span>
+          </div>
+          <div class="search-wrap">
+            <input type="text" id="shelf-search-input" placeholder="Search mocha, sweet cream, inclusions, pastries..." class="styled-input search-input">
+          </div>
+          <div class="shelf-list" id="shelf-list-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: CASH & SAFE COUNTER -->
+      <section id="view-cash" class="app-view">
+        <div class="view-header">
+          <h2>Cash & Safe Audit</h2>
+          <p class="section-desc">Rapid safe audit calculator, till drop verifier, and coin roll math.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-row">
+            <h3>Safe Count Calculator</h3>
+            <button id="reset-safe-btn" class="text-btn danger">Clear</button>
+          </div>
+          
+          <div class="safe-par-row">
+            <label for="safe-par-target">Target Safe Par ($):</label>
+            <input type="number" id="safe-par-target" class="styled-input inline-input" value="1200" step="50">
+          </div>
+
+          <div class="cash-section-title">Loose & Strapped Bills</div>
+          <div class="denom-grid">
+            <div class="denom-cell">
+              <label>$100 Bills</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="100" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>$50 Bills</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="50" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>$20 Bills</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="20" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>$10 Bills</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="10" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>$5 Bills</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="5" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>$1 Bills</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="1" placeholder="0">
+            </div>
+          </div>
+
+          <div class="cash-section-title">Rolled Coins (Full Box/Rolls)</div>
+          <div class="denom-grid">
+            <div class="denom-cell">
+              <label>Quarters ($10/roll)</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="10" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>Dimes ($5/roll)</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="5" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>Nickels ($2/roll)</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="2" placeholder="0">
+            </div>
+            <div class="denom-cell">
+              <label>Pennies ($0.50/roll)</label>
+              <input type="number" min="0" class="styled-input denom-input" data-value="0.5" placeholder="0">
+            </div>
+          </div>
+
+          <div class="denom-cell full-width-cell">
+            <label>Extra Loose Change / Trays ($ Total)</label>
+            <input type="number" min="0" step="0.01" class="styled-input denom-input" id="loose-coins-input" data-value="1" placeholder="0.00">
+          </div>
+
+          <!-- Safe Total Summary Banner -->
+          <div class="safe-summary-card" id="safe-summary-box">
+            <div class="summary-line">
+              <span>Total Safe Count:</span>
+              <strong class="total-amount" id="safe-total-display">$0.00</strong>
+            </div>
+            <div class="summary-line">
+              <span>Variance from Par:</span>
+              <strong class="variance-amount" id="safe-variance-display">$0.00 (Balanced)</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>SSV Cash Standards & Rules</h3>
+          <ul class="rules-list" id="cash-rules-container">
+            <!-- Populated via JS -->
+          </ul>
+        </div>
+      </section>
+
+      <!-- VIEW 5: CS TIMER & CADENCE -->
+      <section id="view-cstimer" class="app-view">
+        <div class="view-header">
+          <h2>Customer Support (CS) Cycle</h2>
+          <p class="section-desc">Rhythm and cadence for fresh coffee, restocking, and keeping baristas planted.</p>
+        </div>
+
+        <div class="card timer-card">
+          <div class="timer-cycle-selector">
+            <button class="cycle-btn active" data-time="480">8 Min (Peak Rush)</button>
+            <button class="cycle-btn" data-time="600">10 Min (Standard)</button>
+            <button class="cycle-btn" data-time="900">15 Min (Shoulder)</button>
+            <button class="cycle-btn" data-time="1800">30 Min (Quiet)</button>
+          </div>
+
+          <div class="digital-timer-clock">
+            <span id="cs-countdown-display">08:00</span>
+          </div>
+
+          <div class="timer-controls">
+            <button class="btn btn-primary btn-large" id="cs-timer-start-btn">Start Cycle</button>
+            <button class="btn btn-secondary btn-large" id="cs-timer-reset-btn">Reset</button>
+          </div>
+
+          <div class="cs-cycle-steps">
+            <h4>Every CS Cycle, Do In Order:</h4>
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div>
+                <strong>Brew Fresh Coffee:</strong> Rotate Pike Place, Dark Roast, or Blonde. Reset brew timer.
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div>
+                <strong>Restock Line Signals:</strong> Ice bins filled, whole/2%/oat milks restocked, cups & lids replenished.
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div>
+                <strong>Lobby & Condiment Sweep:</strong> Wipe handoff plane, check trash cans, sanitize café tables.
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">4</span>
+              <div>
+                <strong>Cycle Dishes:</strong> Run 1 rack through Hobart or load sanitize sink so bar never piles up.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: RECIPES & BAR STANDARDS -->
+      <section id="view-recipes" class="app-view">
+        <div class="view-header">
+          <h2>Beverage Standards & Specs</h2>
+          <p class="section-desc">Fast barista lookup for shots, pumps, cold foam, and milk steaming standards.</p>
+        </div>
+
+        <div class="search-wrap">
+          <input type="text" id="recipe-search-input" placeholder="Search shots, cold foam, macchiato, flat white..." class="styled-input search-input">
+        </div>
+
+        <div class="quick-matrix-card card">
+          <h3>Standard Shot & Pump Quick Matrix</h3>
+          <div class="table-responsive">
+            <table class="specs-table">
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th>Hot Shots</th>
+                  <th>Iced Shots</th>
+                  <th>Hot Pumps</th>
+                  <th>Iced Pumps</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Short (8 oz)</strong></td>
+                  <td>1</td>
+                  <td>-</td>
+                  <td>2</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Tall (12 oz)</strong></td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>3</td>
+                </tr>
+                <tr>
+                  <td><strong>Grande (16 oz)</strong></td>
+                  <td>2</td>
+                  <td>2</td>
+                  <td>4</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td><strong>Venti Hot (20 oz)</strong></td>
+                  <td>2</td>
+                  <td>-</td>
+                  <td>5</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td><strong>Venti Iced (24 oz)</strong></td>
+                  <td>-</td>
+                  <td>3</td>
+                  <td>-</td>
+                  <td>6</td>
+                </tr>
+                <tr>
+                  <td><strong>Trenta (30 oz)</strong></td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td>-</td>
+                  <td>7</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="matrix-notes">
+            <p><strong>Americano:</strong> Short 1, Tall 2, Grande 3, Venti Hot/Iced 4 shots.</p>
+            <p><strong>Flat White:</strong> Short 2, Tall 2, Grande 3, Venti Hot 3, Venti Iced 4 (Ristretto + Whole Milk).</p>
+          </div>
+        </div>
+
+        <div id="recipe-list-container">
+          <!-- Populated via JS -->
+        </div>
+      </section>
+
+      <!-- VIEW 7: LEADERSHIP, SCENARIOS & QUIZ -->
+      <section id="view-leadership" class="app-view">
+        <div class="view-header">
+          <h2>Leadership & Coaching</h2>
+          <p class="section-desc">LATTE method, difficult floor scenarios, and SSV certification practice quiz.</p>
+        </div>
+
+        <div class="pill-tabs">
+          <button class="pill-tab active" data-subview="scenarios">Floor Scenarios</button>
+          <button class="pill-tab" data-subview="latte">LATTE Model</button>
+          <button class="pill-tab" data-subview="quiz">SSV Quiz</button>
+          <button class="pill-tab" data-subview="foodsafety">Food Safety / Steritech</button>
+        </div>
+
+        <!-- Subview: Scenarios -->
+        <div id="subview-scenarios" class="leadership-subview active">
+          <div id="scenarios-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Subview: LATTE -->
+        <div id="subview-latte" class="leadership-subview">
+          <div class="card latte-framework-card">
+            <h3>The LATTE Framework</h3>
+            <p class="card-helper">Starbucks' world-class service recovery model for turning upsets into loyal guests.</p>
+            
+            <div class="latte-letter-block">
+              <div class="letter-badge">L</div>
+              <div class="letter-info">
+                <strong>Listen:</strong> Focus on the customer without interrupting. Let them explain what went wrong.
+              </div>
+            </div>
+            <div class="latte-letter-block">
+              <div class="letter-badge">A</div>
+              <div class="letter-info">
+                <strong>Acknowledge:</strong> Validate their emotions: <em>"I completely understand your frustration, and I appreciate you bringing this to my attention."</em>
+              </div>
+            </div>
+            <div class="latte-letter-block">
+              <div class="letter-badge">T</div>
+              <div class="letter-info">
+                <strong>Take Action:</strong> Remake the beverage right away with top priority or offer an alternative. Empower baristas to hand out a recovery card if appropriate.
+              </div>
+            </div>
+            <div class="latte-letter-block">
+              <div class="letter-badge">T</div>
+              <div class="letter-info">
+                <strong>Thank:</strong> <em>"Thank you for letting us make that right for you today."</em>
+              </div>
+            </div>
+            <div class="latte-letter-block">
+              <div class="letter-badge">E</div>
+              <div class="letter-info">
+                <strong>Encourage Return:</strong> Warmly invite them back: <em>"Have a wonderful afternoon and we will see you tomorrow morning!"</em>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subview: SSV Quiz -->
+        <div id="subview-quiz" class="leadership-subview">
+          <div class="card quiz-card">
+            <div class="quiz-header">
+              <h3>SSV Practice Certification Quiz</h3>
+              <div class="score-display">Score: <strong id="quiz-score-num">0</strong>/<span id="quiz-total-num">12</span></div>
+            </div>
+            <p class="card-helper">Test your readiness on routines, food code, cash handling, and bar standards.</p>
+            
+            <div id="quiz-body-container">
+              <!-- Populated via JS -->
+            </div>
+            <button class="btn btn-primary" id="restart-quiz-btn" style="display:none; margin-top:16px;">Restart Quiz</button>
+          </div>
+        </div>
+
+        <!-- Subview: Food Safety / Steritech -->
+        <div id="subview-foodsafety" class="leadership-subview">
+          <div class="card">
+            <h3>Steritech & QASA Audit Checklist</h3>
+            <p class="card-helper">Critical inspection standards to ensure a 100% compliant food safety audit score.</p>
+            <div id="food-safety-container">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 8: SHIFT HANDOVER LOG -->
+      <section id="view-handover" class="app-view">
+        <div class="view-header">
+          <h2>Shift Handover Log</h2>
+          <p class="section-desc">Document notes between Open, Mid, and Close. Auto-saved locally.</p>
+        </div>
+
+        <div class="card">
+          <div class="form-group">
+            <label for="handover-daypart">Current Daypart / Shift</label>
+            <select id="handover-daypart" class="styled-select">
+              <option value="Open to Mid">Open ➔ Mid Handover</option>
+              <option value="Mid to Close">Mid ➔ Close Handover</option>
+              <option value="Close to Open">Close ➔ Open Morning Prep</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="handover-86">86'd Items / Stock Depletions</label>
+            <textarea id="handover-86" class="styled-textarea" rows="2" placeholder="e.g. Out of Oat Milk, 2% running low, 86 Caramel Crunch topping..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="handover-equipment">Equipment / Maintenance Tickets</label>
+            <textarea id="handover-equipment" class="styled-textarea" rows="2" placeholder="e.g. Mastrena 1 rinsed, ice bin drain slow, FCC ticket #48102 opened..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="handover-shoutout">Partner Celebrations & Floor Notes</label>
+            <textarea id="handover-shoutout" class="styled-textarea" rows="3" placeholder="e.g. Maria crushed DTO during peak! DT time was 44 seconds..."></textarea>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="save-handover-btn">Save Handover</button>
+            <button class="btn btn-outline" id="copy-handover-btn">Copy to Clipboard</button>
+            <button class="btn text-btn danger" id="clear-handover-btn">Clear Form</button>
+          </div>
+          <div id="handover-status" class="status-msg"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar for Mobile -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-target="routines" aria-label="Routines">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        <span>Routines</span>
+      </button>
+
+      <button class="nav-item" data-target="playcaller" aria-label="Playcaller">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Playcaller</span>
+      </button>
+
+      <button class="nav-item" data-target="daydot" aria-label="Day-Dot">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        <span>Day-Dot</span>
+      </button>
+
+      <button class="nav-item" data-target="cash" aria-label="Cash">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <span>Cash</span>
+      </button>
+
+      <button class="nav-item" data-target="cstimer" aria-label="CS Timer">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>CS Timer</span>
+      </button>
+
+      <button class="nav-item" data-target="recipes" aria-label="Standards">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        <span>Recipes</span>
+      </button>
+
+      <button class="nav-item" data-target="leadership" aria-label="Coach">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span>Coach</span>
+      </button>
+
+      <button class="nav-item" data-target="handover" aria-label="Handover">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Handover</span>
+      </button>
+    </nav>
+
+    <!-- Emergency Hotline Modal -->
+    <div id="hotline-modal" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Emergency Contacts & Hotlines</h3>
+          <button id="close-hotline-btn" class="icon-btn-close">&times;</button>
+        </div>
+        <div class="modal-body" id="hotline-contacts-list">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
